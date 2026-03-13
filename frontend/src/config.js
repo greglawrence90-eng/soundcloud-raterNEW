@@ -1,4 +1,4 @@
 // API URL configuration
-// In production, API is served from same origin
-export const API_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.MODE === 'production' ? '/api' : 'http://localhost:3001/api');
+// In Railway/production, always use relative path
+const isProduction = window.location.hostname !== 'localhost';
+export const API_URL = isProduction ? '/api' : 'http://localhost:3001/api';

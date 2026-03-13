@@ -1,15 +1,17 @@
-  // In-memory database                                 
-  const data = { sets: [], ratings: [] };
+  // In-memory database        
+  const data = { sets: [], ratings: [] };                                                                                         
 
-  console.log('📁 Using in-memory database');
-
-  const db = {
-    prepare: (sql) => ({
+  console.log('📁 Using in-memory database');                                                                                                                     
+   
+  const db = {                                                                                                                                                    
+    prepare: (sql) => ({                                
       all: (...params) => {
-        console.log('🔍 Query:', sql.substring(0, 60) + '...');
+        // Normalize SQL for matching (remove extra whitespace)
+        const normalizedSql = sql.replace(/\s+/g, ' ').trim();
+        console.log('🔍 Normalized query:', normalizedSql.substring(0, 60) + '...');
         console.log('💾 Current data.sets:', data.sets.length, 'items');
 
-        if (sql.includes('FROM sets s LEFT JOIN')) {
+        if (normalizedSql.includes('FROM sets s') || normalizedSql.includes('LEFT JOIN ratings')) {
           const result = data.sets.map(set => {
             const setRatings = data.ratings.filter(r => r.set_id === set.id);
             return {
@@ -23,11 +25,11 @@
           return result;
         }
 
-        if (sql.includes('FROM ratings WHERE set_id')) {
+        if (normalizedSql.includes('FROM ratings WHERE set_id')) {
           return data.ratings.filter(r => r.set_id === params[0]);
         }
 
-        if (sql.includes('FROM sets WHERE id')) {
+        if (normalizedSql.includes('FROM sets WHERE id')) {
           return data.sets.filter(s => s.id === params[0]);
         }
 

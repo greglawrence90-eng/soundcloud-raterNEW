@@ -1,23 +1,13 @@
-FROM node:18-slim
-
-  WORKDIR /app
-
-  # Copy package files
-  COPY package.json ./
-  COPY backend/package*.json ./backend/
-  COPY frontend/package*.json ./frontend/
-
-  # Copy source code
-  COPY backend ./backend
-  COPY frontend ./frontend
-
-  # Install dependencies
-  RUN cd backend && npm install
-  RUN cd frontend && npm install
-
-  # Build frontend
-  RUN cd frontend && npm run build
-
-  WORKDIR /app/backend
-
-  CMD ["node", "server.js"]
+ {
+    "name": "soundcloud-rater-backend",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+      "start": "node server.js",
+      "dev": "node --watch server.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2",
+      "cors": "^2.8.5"
+    }
+  }

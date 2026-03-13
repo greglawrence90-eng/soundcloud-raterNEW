@@ -1,40 +1,11 @@
-import fs from 'fs';
-  import path from 'path';
-  import { fileURLToPath } from 'url';
+// In-memory database (persists during session, resets on redeploy)
+  let data = { sets: [], ratings: [] };
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
-  const DB_FILE = path.join(__dirname, 'data.json');
-
-  console.log('📁 Database file path:', DB_FILE);
-
-  // Initialize DB file
-  if (!fs.existsSync(DB_FILE)) {
-    console.log('Creating new database file...');
-    fs.writeFileSync(DB_FILE, JSON.stringify({ sets: [], ratings: [] }, null, 2));
-    console.log('✓ Database file created');
-  } else {
-    console.log('✓ Database file exists');
-  }
-
-  const readDB = () => {
-    const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-    console.log('📖 Read DB:', data.sets.length, 'sets,', data.ratings.length, 'ratings');
-    return data;
-  };
-
-  const writeDB = (data) => {
-    console.log('💾 Writing DB:', data.sets.length, 'sets,', data.ratings.length, 'ratings');
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
-    console.log('✓ DB written successfully');
-  };
+  console.log('📁 Using in-memory database');
 
   const db = {
     prepare: (sql) => ({
       all: (...params) => {
-        const data = readDB();
-
         if (sql.includes('FROM sets s LEFT JOIN ratings r')) {
           return data.sets.map(set => {
             const setRatings = data.ratings.filter(r => r.set_id === set.id);
@@ -48,13 +19,11 @@ import fs from 'fs';
         }
 
         if (sql.includes('FROM ratings WHERE set_id')) {
-          const setId = params[0];
-          return data.ratings.filter(r => r.set_id === setId);
+          return data.ratings.filter(r => r.set_id === params[0]);
         }
 
         if (sql.includes('FROM sets WHERE id')) {
-          const id = params[0];
-          return data.sets.filter(s => s.id === id);
+          return data.sets.filter(s => s.id === params[0]);
         }
 
         return [];
@@ -64,11 +33,7 @@ import fs from 'fs';
         return results[0] || null;
       },
       run: (...params) => {
-        console.log('🔧 Running SQL:', sql.substring(0, 50) + '...');
-        const data = readDB();
-
         if (sql.includes('INSERT INTO sets')) {
-          console.log('Adding new set:', params);
           const newSet = {
             id: data.sets.length > 0 ? Math.max(...data.sets.map(s => s.id)) + 1 : 1,
             soundcloud_url: params[0],
@@ -77,8 +42,7 @@ import fs from 'fs';
             posted_at: new Date().toISOString()
           };
           data.sets.push(newSet);
-          writeDB(data);
-          console.log('✓ Set added, new ID:', newSet.id);
+          console.log('✓ Set added:', newSet.title, '- Total sets:', data.sets.length);
           return { lastInsertRowid: newSet.id };
         }
 
@@ -103,7 +67,7 @@ import fs from 'fs';
               created_at: new Date().toISOString()
             });
           }
-          writeDB(data);
+          console.log('✓ Rating added - Total ratings:', data.ratings.length);
           return {};
         }
 
@@ -112,7 +76,6 @@ import fs from 'fs';
           const rating = data.ratings.find(r => r.set_id === parseInt(setId) && r.username === username);
           if (rating) {
             rating.has_listened = has_listened;
-            writeDB(data);
           }
           return {};
         }

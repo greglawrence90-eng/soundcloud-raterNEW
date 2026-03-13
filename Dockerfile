@@ -1,10 +1,4 @@
-FROM node:18-alpine
-  to:
-  FROM node:18
-
-  4. Also add python and build tools for better-sqlite3. Replace the entire Dockerfile with:
-
-  FROM node:18
+ FROM node:18
 
   WORKDIR /app
 

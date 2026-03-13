@@ -18,7 +18,8 @@ FROM node:18-alpine
   # Build frontend
   RUN cd frontend && npm run build
 
-  # EXPOSE 8080
+  # Set working directory to backend
+  WORKDIR /app/backend
 
-  # Start backend server
-  CMD ["npm", "start"]
+  # Start server directly (not via npm)
+  CMD ["node", "server.js"]

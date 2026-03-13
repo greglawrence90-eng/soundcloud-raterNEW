@@ -1,6 +1,15 @@
 FROM node:18-alpine
+  to:
+  FROM node:18
+
+  4. Also add python and build tools for better-sqlite3. Replace the entire Dockerfile with:
+
+  FROM node:18
 
   WORKDIR /app
+
+  # Install build dependencies for better-sqlite3
+  RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
   # Copy package files
   COPY package.json ./
@@ -21,5 +30,5 @@ FROM node:18-alpine
   # Set working directory to backend
   WORKDIR /app/backend
 
-  # Start server directly (not via npm)
+  # Start server directly
   CMD ["node", "server.js"]

@@ -1,4 +1,4 @@
- FROM node:18
+FROM node:18
 
   WORKDIR /app
 
@@ -10,13 +10,13 @@
   COPY backend/package*.json ./backend/
   COPY frontend/package*.json ./frontend/
 
-  # Install all dependencies
-  RUN cd backend && npm install
-  RUN cd frontend && npm install
-
-  # Copy source code
+  # Copy source code first
   COPY backend ./backend
   COPY frontend ./frontend
+
+  # Install and build dependencies
+  RUN cd backend && npm install --build-from-source
+  RUN cd frontend && npm install
 
   # Build frontend
   RUN cd frontend && npm run build
@@ -24,5 +24,5 @@
   # Set working directory to backend
   WORKDIR /app/backend
 
-  # Start server directly
+  # Start server
   CMD ["node", "server.js"]

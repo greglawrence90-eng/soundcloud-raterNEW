@@ -81,6 +81,21 @@
     }
   });
 
+  // Delete a set
+  app.delete('/api/sets/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log('🗑️  Deleting set ID:', id);
+
+      db.prepare(`DELETE FROM sets WHERE id = ?`).run(parseInt(id));
+
+      res.json({ message: 'Set deleted successfully' });
+    } catch (error) {
+      console.error('❌ Error deleting set:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Add or update a rating
   app.post('/api/ratings', (req, res) => {
     try {

@@ -1,10 +1,10 @@
 import express from 'express';
-  import cors from 'cors';
+  import cors from 'cors';                                                                                                        
   import path from 'path';
-  import { fileURLToPath } from 'url';
+  import { fileURLToPath } from 'url';                                                                                                                            
   import db from './db.js';
-
-  const __filename = fileURLToPath(import.meta.url);
+                                                                                                                                                                  
+  const __filename = fileURLToPath(import.meta.url);    
   const __dirname = path.dirname(__filename);
 
   const app = express();
@@ -12,9 +12,6 @@ import express from 'express';
 
   app.use(cors());
   app.use(express.json());
-
-  // Serve static files from React build
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
   // Get all sets with their ratings and sentiment
   app.get('/api/sets', (req, res) => {
@@ -116,6 +113,9 @@ import express from 'express';
       res.status(500).json({ error: error.message });
     }
   });
+
+  // Serve static files from React build
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
   // Serve React app for all other routes
   app.get('*', (_req, res) => {

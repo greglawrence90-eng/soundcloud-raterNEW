@@ -1,17 +1,6 @@
- import Database from 'better-sqlite3';
-  import path from 'path';
-  import { fileURLToPath } from 'url';
+import Database from 'better-sqlite3';
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
-  // Use /tmp for database in Railway (ephemeral but writable)
-  // In production with volume mounted, this should be /data
-  const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'soundcloud-rater.db');
-
-  console.log('📁 Database path:', dbPath);
-
-  const db = new Database(dbPath);
+  const db = new Database('soundcloud-rater.db');
 
   // Initialize database tables
   db.exec(`
@@ -34,3 +23,5 @@
       UNIQUE(set_id, username)
     );
   `);
+
+  export default db;

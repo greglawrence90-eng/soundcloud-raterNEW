@@ -1,10 +1,10 @@
-import express from 'express';
-  import cors from 'cors';                                                                                                        
+  import express from 'express';
+  import cors from 'cors';
   import path from 'path';
-  import { fileURLToPath } from 'url';                                                                                                                            
+  import { fileURLToPath } from 'url';
   import db from './db.js';
-                                                                                                                                                                  
-  const __filename = fileURLToPath(import.meta.url);    
+
+  const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
   const app = express();
@@ -13,9 +13,16 @@ import express from 'express';
   app.use(cors());
   app.use(express.json());
 
+  // Test endpoint
+  app.get('/api/test', (req, res) => {
+    console.log('🧪 TEST endpoint called');
+    res.json({ status: 'working', timestamp: new Date().toISOString() });
+  });
+
   // Get all sets with their ratings and sentiment
   app.get('/api/sets', (req, res) => {
     try {
+      console.log('📡 GET /api/sets called');
       const sets = db.prepare(`
         SELECT
           s.*,
@@ -27,6 +34,8 @@ import express from 'express';
         GROUP BY s.id
         ORDER BY s.posted_at DESC
       `).all();
+
+      console.log('📊 Raw query result:', sets);
 
       const setsWithRatings = sets.map(set => {
         const ratings = db.prepare(`
@@ -43,8 +52,10 @@ import express from 'express';
         };
       });
 
+      console.log('✅ Sending response with', setsWithRatings.length, 'sets');
       res.json(setsWithRatings);
     } catch (error) {
+      console.error('❌ Error in GET /api/sets:', error);
       res.status(500).json({ error: error.message });
     }
   });

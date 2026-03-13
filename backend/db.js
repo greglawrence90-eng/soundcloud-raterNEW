@@ -1,10 +1,10 @@
-  // In-memory database        
-  const data = { sets: [], ratings: [] };                                                                                         
+  // In-memory database
+  const data = { sets: [], ratings: [] };
 
-  console.log('📁 Using in-memory database');                                                                                                                     
-   
-  const db = {                                                                                                                                                    
-    prepare: (sql) => ({                                
+  console.log('📁 Using in-memory database');
+
+  const db = {
+    prepare: (sql) => ({
       all: (...params) => {
         // Normalize SQL for matching (remove extra whitespace)
         const normalizedSql = sql.replace(/\s+/g, ' ').trim();
@@ -54,6 +54,18 @@
           console.log('✅ Set added! ID:', newSet.id, 'Total:', data.sets.length);
           console.log('📋 All sets:', JSON.stringify(data.sets));
           return { lastInsertRowid: newSet.id };
+        }
+
+        if (sql.includes('DELETE FROM sets')) {
+          const setId = params[0];
+          const setIndex = data.sets.findIndex(s => s.id === setId);
+          if (setIndex >= 0) {
+            data.sets.splice(setIndex, 1);
+            // Also remove all ratings for this set (cascade delete)
+            data.ratings = data.ratings.filter(r => r.set_id !== setId);
+            console.log('🗑️  Set deleted! Remaining sets:', data.sets.length);
+          }
+          return {};
         }
 
         if (sql.includes('INSERT INTO ratings')) {
